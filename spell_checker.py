@@ -72,7 +72,7 @@ def filter_real_words(words):
 
 
 def one_length_edit(word):
-    '''Función no alterda por el ataque'''
+    '''Función no alterada por el ataque'''
     
     splits = [(word[:i], word[i:]) for i in range(len(word) + 1)]
     
@@ -108,7 +108,7 @@ def one_length_edit(word):
 
 
 def two_lenght_edit(word):
-    '''Función no alterda por el ataque'''
+    '''Función no alterada por el ataque'''
     return [e2 for e1 in one_length_edit(word) for e2 in one_length_edit(e1)]
 
 
