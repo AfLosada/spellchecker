@@ -120,7 +120,6 @@ def test_spell_check_sentence():
 
     
     sentence = 'un lgar para la hopinion'
-    #no ha lugar para la opinión
     assert 'un lugar para la opinión' == spell_check_sentence(sentence)
 
     sentence = 'el Arebol del día'
