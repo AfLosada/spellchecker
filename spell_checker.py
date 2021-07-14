@@ -147,3 +147,17 @@ def test_spell_check_sentence():
     print(spell_check_sentence(sentence))
     assert 'él no era una persona de fiar pues era un mentiroso' == spell_check_sentence(sentence) 
 
+def test_spell_check_sentence_2():
+    
+    sentence = 'él, no era una persona de fiar pues era un mentirozo'
+    print(spell_check_sentence(sentence))
+    assert 'él, no era una persona de fiar pues era un mentiroso' == spell_check_sentence(sentence)
+
+    sentence = 'No era una persona de fiar pues era un mentirozo'
+    print(spell_check_sentence(sentence))
+    assert 'No era una persona de fiar pues era un mentiroso' == spell_check_sentence(sentence) 
+
+    sentence = 'trabaja de dia'
+    print(spell_check_sentence(sentence))
+    assert 'trabaja de día' == spell_check_sentence(sentence) 
+    
