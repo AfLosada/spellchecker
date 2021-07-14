@@ -4,7 +4,7 @@ from string import ascii_lowercase
 
 
 def fetch_words(read_mode):
-    '''Función no alterda por el ataque'''
+    '''Función no alterada por el ataque'''
 
     words_from_dictionary = [ word.strip() for word in open('words.txt').readlines() ]
     words_from_books = re.findall(r'\w+', open('BOOKS.txt', read_mode).read())
