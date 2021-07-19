@@ -32,7 +32,7 @@ for word in WORDS:
 
 
 ' Hubo un reordenamiento de las funciones pues habían funciones que utilizaban funciones declaradas debajo de ellas'
-' Esto sucede porque en tiempo de compilación se intenta acceder a una función que aún no ha sido declarada'
+' El error sucede porque en tiempo de compilación se intenta acceder a una función que aún no ha sido declarada'
 
 # Esta función se llama después de haber corregido el spelling de todas las palabras, pues hace una comparación 1:1 #
 # Esta función recibe una lista de palabras y retorna aquellas que estén en el índice #
@@ -40,6 +40,8 @@ for word in WORDS:
 def filter_real_words(words):
     return set(word for word in words if word in WORDS_INDEX)
 
+# Esta función recibe una palabra y encuetra todas las palabras que están a 1 de distancia de la original #
+# El vocabulario que se usa está guardado en la variable LETTERS #
 def one_length_edit(word):
     '''Función no alterada por el ataque'''
     
@@ -75,40 +77,44 @@ def one_length_edit(word):
     return list(set(one_length_editions))
 
 
-
+# Esta función hace una iteración más sobre cada palabra que recibe de one_length_edit #
+# Al iterar una vez más, se crean todas las combinaciones a distancia 2 de la palabra original #
 def two_lenght_edit(word):
     '''Función no alterada por el ataque'''
     return [e2 for e1 in one_length_edit(word) for e2 in one_length_edit(e1)]
 
 
 def possible_corrections(word):
-    # Se crean cuatro variables con los resultados de las cuatro posibilidades de cada palabra #
     # Si la palabra está correcta se retorna la misma, pero en forma de arreglo pues así la recibe la función superior #
     no_correction_at_all = [word]
-    one_length_edit_possible_corrections = filter_real_words(one_length_edit(word))
-    two_lenght_edit_possible_corrections = filter_real_words(two_lenght_edit(word))
     
     # En este if se empieza por lo más macro: ¿La palabra es una palabra real? #
     # Se usa len para verificar que el set tenga contenido, si no lo tiene se avanza al siguiente if #
+    # Este if se agrega para evitar los siguientes pasos en el caso de que la palabra sea la misma #
     if len(filter_real_words([word])):
         return no_correction_at_all
-
-    # Ahora nos preguntamos ¿Hay una palabra a uno de distancia que sea real? #
-    elif len(one_length_edit_possible_corrections):
-        return one_length_edit_possible_corrections
-    # Lo mismo que el anterior pero a dos de distancia #
-    elif len(two_lenght_edit_possible_corrections):
-        return two_lenght_edit_possible_corrections
-    # En cualquier caso, si no hay correcciones a esta distancia se retorna lo mismo que se ingresó#
+    # Ahora nos ponemos a buscar si hay una palabra a máximo dos de distancia #
     else:
-        return no_correction_at_all
+        # Se crean estas dos variables para facilitar la legibilidad del código #
+        # Es importante que estén dentro de el else para que el if que lo precede optimice el código #
+        one_length_edit_possible_corrections = filter_real_words(one_length_edit(word))
+        two_lenght_edit_possible_corrections = filter_real_words(two_lenght_edit(word))
+        # Ahora nos preguntamos ¿Hay una palabra a uno de distancia que sea real? #
+        if len(one_length_edit_possible_corrections):
+            return one_length_edit_possible_corrections
+    # Lo mismo que el anterior pero a dos de distancia #
+        elif len(two_lenght_edit_possible_corrections):
+            return two_lenght_edit_possible_corrections
+        # En cualquier caso, si no hay correcciones a esta distancia se retorna lo mismo que se ingresó #
+        else:
+            return no_correction_at_all
 
 
 # Es lo que permite determinar cual de las opciones es la más utilizada, 
 def language_model(word):
     # El language model retorna un número que se usa para compara qué palabra es usada más frecuentemente #
-    # Mientras más pequeño N más se usa la palabra, se cambió la lógica de este modelo pues estaba dando resultados erróneos#
-    N = max(sum(WORDS_INDEX.values()), random.randint(5, 137))
+    # Eliminé el random y la sumatoria pues no cumplen ninguna funciona además de aleatorizar la elección de la palabra #
+    N = sum(WORDS_INDEX.values())
     return WORDS_INDEX.get(word, 0)/N
 
 
