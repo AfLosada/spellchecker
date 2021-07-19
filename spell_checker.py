@@ -1,28 +1,32 @@
 import re
 from string import ascii_lowercase
 
-
+## Esta función obtiene todas las palabras del archivo word.txt y del archivo BOOKS.txt y las guarda en un arreglo de strings ##
+## La función retorna todas las palabras que encuentra en los dos archivos,  ##
+## Utiliza el parámetro read_mode para designar la manera en que se abrirá el archivo, esto hay que agregarlo como un parámetro nuevo a la función "open" ##
+## Se le agregó encoding = 'utf8', como una variable y como parámetro de la función "open" para que funcionara la lectura del archivo sin problemas (pues el archivo tiene que ser leído con utf8 para que incluya tildes y caracteres del habla hispana) ##
 
 def fetch_words(read_mode):
     '''Función no alterada por el ataque'''
+    ## Variable agregada para facilitar el cambio del encoding para la laectura de los archivos##
+    encoding = "utf8"
 
-    words_from_dictionary = [ word.strip() for word in open('words.txt').readlines() ]
-    words_from_books = re.findall(r'\w+', open('BOOKS.txt', read_mode).read())
-    
+    words_from_dictionary = [ word.strip() for word in open('words.txt', encoding = encoding).readlines() ]
+    words_from_books = re.findall(r'\w+', open('BOOKS.txt', read_mode, encoding = encoding).read())
     return words_from_dictionary + words_from_books
 
-WORDS = fetch_words('w')
+WORDS = fetch_words('r')
+#LETTERS NO HACE NADA
 LETTERS = list(ascii_lowercase) + ['ñ', 'á', 'é', 'í', 'ó', 'ú']
 
+## Es un diccionario que recibe como llave una palabra y almacena la cantidad de veces que esta se repite en los textos ##
+## Se tuvo que arreglar la lógica dentro de los ifs, pues estaba al revés. Cada vez que se una palabra ya se encuentra en el WORDS_INDEX el valor que contiene aumenta en 1 ##
 WORDS_INDEX = {}
-
 for word in WORDS:
     if word in WORDS_INDEX:
-        WORDS_INDEX[word] = 1
+        WORDS_INDEX["" + word] += 1
     else:
-        WORDS_INDEX[word] += 1
-
-
+        WORDS_INDEX["" + word] = 1
 
 
 def possible_corrections(word):
