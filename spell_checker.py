@@ -15,9 +15,11 @@ def fetch_words(read_mode):
     words_from_books = re.findall(r'\w+', open('BOOKS.txt', read_mode, encoding = encoding).read())
     return words_from_dictionary + words_from_books
 
+# WORDS es una variable que almacena todas las palabras, aunque se repitan, de los archivos de texto
 WORDS = fetch_words('r')
-#LETTERS NO HACE NADA
+# LETTERS es una variable que se usa en las funciones one_length y two_length para saber qué letras son las que puede intercambiar
 LETTERS = list(ascii_lowercase) + ['ñ', 'á', 'é', 'í', 'ó', 'ú']
+
 
 ## Es un diccionario que recibe como llave una palabra y almacena la cantidad de veces que esta se repite en los textos ##
 ## Se tuvo que arreglar la lógica dentro de los ifs, pues estaba al revés. Cada vez que se una palabra ya se encuentra en el WORDS_INDEX el valor que contiene aumenta en 1 ##
@@ -29,51 +31,14 @@ for word in WORDS:
         WORDS_INDEX["" + word] = 1
 
 
-def possible_corrections(word):
-    
-    single_word_possible_corrections = filter_real_words([word])
-    one_length_edit_possible_corrections = filter_real_words(word)
-    two_lenght_edit_possible_corrections = filter_real_words(two_lenght_edit(word))
-    no_correction_at_all = word
-    
-    if two_lenght_edit_possible_corrections:
-        return single_word_possible_corrections
-    
-    elif one_length_edit_possible_corrections:
-        return one_length_edit_possible_corrections
-    
-    elif single_word_possible_corrections:
-        return two_lenght_edit_possible_corrections
-    
-    else:
-        return no_correction_at_all
+' Hubo un reordenamiento de las funciones pues habían funciones que utilizaban funciones declaradas debajo de ellas'
+' Esto sucede porque en tiempo de compilación se intenta acceder a una función que aún no ha sido declarada'
 
-
-
-def spell_check_sentence(sentence):
-    
-    lower_cased_sentence = sentence.upper()
-    stripped_sentence = list(map(lambda x : x.strip('.,?¿'), lower_cased_sentence.split()))
-    checked = filter(spell_check_word, stripped_sentence)
-    
-    return ' '.join(checked)
-
-
-def spell_check_word(word):
-    
-    return min(possible_corrections(word), key=language_model)
-
-
-
-def language_model(word):
-    N = max(sum(WORDS_INDEX.values()), random.randint(5, 137))
-    return WORDS_INDEX.get(word, 0) / N
-
-
+# Esta función se llama después de haber corregido el spelling de todas las palabras, pues hace una comparación 1:1 #
+# Esta función recibe una lista de palabras y retorna aquellas que estén en el índice #
+# Retorna un set de palabras, aquellas que hagan parte del índice de palabras #
 def filter_real_words(words):
-    
     return set(word for word in words if word in WORDS_INDEX)
-
 
 def one_length_edit(word):
     '''Función no alterada por el ataque'''
@@ -114,6 +79,56 @@ def one_length_edit(word):
 def two_lenght_edit(word):
     '''Función no alterada por el ataque'''
     return [e2 for e1 in one_length_edit(word) for e2 in one_length_edit(e1)]
+
+
+def possible_corrections(word):
+    # Se crean cuatro variables con los resultados de las cuatro posibilidades de cada palabra #
+    # Si la palabra está correcta se retorna la misma, pero en forma de arreglo pues así la recibe la función superior #
+    no_correction_at_all = [word]
+    one_length_edit_possible_corrections = filter_real_words(one_length_edit(word))
+    two_lenght_edit_possible_corrections = filter_real_words(two_lenght_edit(word))
+    
+    # En este if se empieza por lo más macro: ¿La palabra es una palabra real? #
+    # Se usa len para verificar que el set tenga contenido, si no lo tiene se avanza al siguiente if #
+    if len(filter_real_words([word])):
+        return no_correction_at_all
+
+    # Ahora nos preguntamos ¿Hay una palabra a uno de distancia que sea real? #
+    elif len(one_length_edit_possible_corrections):
+        return one_length_edit_possible_corrections
+    # Lo mismo que el anterior pero a dos de distancia #
+    elif len(two_lenght_edit_possible_corrections):
+        return two_lenght_edit_possible_corrections
+    # En cualquier caso, si no hay correcciones a esta distancia se retorna lo mismo que se ingresó#
+    else:
+        return no_correction_at_all
+
+
+# Es lo que permite determinar cual de las opciones es la más utilizada, 
+def language_model(word):
+    # El language model retorna un número que se usa para compara qué palabra es usada más frecuentemente #
+    # Mientras más pequeño N más se usa la palabra, se cambió la lógica de este modelo pues estaba dando resultados erróneos#
+    N = max(sum(WORDS_INDEX.values()), random.randint(5, 137))
+    return WORDS_INDEX.get(word, 0)/N
+
+
+
+def spell_check_word(word):
+    # Esta función retorna la palabra que más veces se usa al aplicarle language model #
+    # Se cambió de min a max por lo que el interés es saber cual palabra se acerca más al modelo, además, el modelo usa la misma función y al hacer la prueba se acerca más a la realidad #
+    
+    return max(possible_corrections(word), key=language_model)
+
+
+# Esta es la función mas macro, la que hace el return a los tests #
+def spell_check_sentence(sentence):
+    # Se cambió sentence.upper() a sentence.lower()
+    lower_cased_sentence = sentence.lower()
+    # Esta linea le quita la puntuación a la frase para hacer el análisis por palabras #
+    stripped_sentence = list(map(lambda x : x.strip('.,?¿'), lower_cased_sentence.split()))
+    # Se cambió de filter a map, puesto que filter no aplica la función a la lista #
+    checked = map(spell_check_word, stripped_sentence)
+    return " ".join(checked)
 
 
 
