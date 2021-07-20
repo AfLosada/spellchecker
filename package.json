@@ -3,11 +3,14 @@
   "description": "",
   "version": "0.1.0",
   "dependencies": {
+    "@material-ui/core": "^4.12.2",
+    "@material-ui/icons": "^4.11.2",
     "serverless-dynamodb-local": "^0.2.35",
     "serverless-python-requirements": "^5.1.1"
   },
   "devDependencies": {
     "serverless": "^2.52.0",
-    "serverless-offline": "^6.9.0"
+    "serverless-offline": "^6.9.0",
+    "serverless-wsgi": "^1.7.8"
   }
 }

@@ -1,21 +1,9 @@
 import json
-import sqlite3
-conn = sqlite3.connect('database.db')
+
+# Importo el archivo que se conecta a la base de datos
+from database import database
 
 from spell_checker import spell_check_sentence
-
-def createTable():
-    command = """
-        CREATE TABLE IF NOT EXISTS petitionhistory (
-            petition TEXT, 
-            response TEXT
-        )
-        """
-    conn.execute(command)
-
-def insertPetition(petition, response):
-    sql = """INSERT INTO petitionhistory VALUES(?, ?)"""
-    conn.execute(sql, (petition, response))
 
 def spell_check(event, context):    
     body = {
@@ -24,7 +12,7 @@ def spell_check(event, context):
     }
 
     # Se crea la tabla o se revisa si esta ya existe
-    createTable()
+    database.createTable()
 
     # Primero se lee el body
     input_body= event["body"]
@@ -36,7 +24,8 @@ def spell_check(event, context):
     # Se lee el atributo que es deseado y se guarda el resultado en una variable
     spell_check = spell_check_sentence(petition)
 
-    insertPetition(petition, spell_check)
+    # Acá se insertan en la base de datos
+    database.insertPetition(petition, spell_check)
 
     body["input"] = spell_check
 
