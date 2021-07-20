@@ -16,13 +16,19 @@ def fetch_words(read_mode):
     words_from_dictionary = [ word.strip() for word in open('words.txt', encoding = encoding).readlines() ]
     words_from_books = re.findall(r'\w+', open('BOOKS.txt', read_mode, encoding = encoding).read())
     return words_from_dictionary + words_from_books
+# spanish_letters es un arreglo que tiene todas las letras en español que se deben priorizar
+spanish_letters = ['ñ', 'á', 'é', 'í', 'ó', 'ú']
+# spanish typo es un arreglo que tiene todas las letras que pueden ser un typo del usuario
+spanish_typo = ['n','a','e','i','o','u']
 
 # WORDS es una variable que almacena todas las palabras, aunque se repitan, de los archivos de texto
 WORDS = fetch_words('r')
 # LETTERS es una variable que se usa en las funciones one_length y two_length para saber qué letras son las que puede intercambiar
-LETTERS = list(ascii_lowercase) + ['ñ', 'á', 'é', 'í', 'ó', 'ú']
+LETTERS = list(ascii_lowercase) + spanish_letters
 # punct_type es una variable que tiene un arreglo de tipos de puntuacion para facilitar la adición o sustracción de un tipo de puntuacion
 punct_type = [',', '.', '¿', '?', '!', '¡', '\'', '"']
+
+
 
 ## Es un diccionario que recibe como llave una palabra y almacena la cantidad de veces que esta se repite en los textos ##
 ## Se tuvo que arreglar la lógica dentro de los ifs, pues estaba al revés. Cada vez que se una palabra ya se encuentra en el WORDS_INDEX el valor que contiene aumenta en 1 ##
@@ -32,7 +38,7 @@ for word in WORDS:
         WORDS_INDEX["" + word] += 1
     else:
         WORDS_INDEX["" + word] = 1
-
+print(WORDS_INDEX["trabajo"])
 
 ' Hubo un reordenamiento de las funciones pues habían funciones que utilizaban funciones declaradas debajo de ellas'
 ' El error sucede porque en tiempo de compilación se intenta acceder a una función que aún no ha sido declarada'
@@ -86,10 +92,25 @@ def two_lenght_edit(word):
     '''Función no alterada por el ataque'''
     return [e2 for e1 in one_length_edit(word) for e2 in one_length_edit(e1)]
 
+# Esta función recibe una palabra y le cambia las letras 
+def transform_into_spanish(word):
+    words = []
+    for i in range(0, len(spanish_typo)):
+        possible_typo = spanish_typo[i]
+        for j in range(0, len(word)):
+            letter = word[j]
+            if letter == possible_typo:
+                front = word[0: j]
+                back = word[j+1: len(word)]
+                temporal_word = front + spanish_letters[i] + back
+                words.append(temporal_word)
+    return words
+
 
 def possible_corrections(word):
     # Si la palabra está correcta se retorna la misma, pero en forma de arreglo pues así la recibe la función superior #
     no_correction_at_all = [word]
+    spanish_word = filter_real_words(transform_into_spanish(word))
     
     # En este if se empieza por lo más macro: ¿La palabra es una palabra real? #
     # Se usa len para verificar que el set tenga contenido, si no lo tiene se avanza al siguiente if #
@@ -97,6 +118,8 @@ def possible_corrections(word):
     if len(filter_real_words([word])):
         return no_correction_at_all
     # Ahora nos ponemos a buscar si hay una palabra a máximo dos de distancia #
+    elif len(spanish_word):
+        return spanish_word
     else:
         # Se crean estas dos variables para facilitar la legibilidad del código #
         # Es importante que estén dentro de el else para que el if que lo precede optimice el código #
@@ -113,15 +136,13 @@ def possible_corrections(word):
             return no_correction_at_all
 
 
-# Es lo que permite determinar cual de las opciones es la más utilizada, 
+# Es lo que permite determinar cual de las opciones es la más utilizada, pues se usa para comparar qué opción tiene un promedio de uso mayor (cual es más popular) #
 def language_model(word):
     # El language model retorna un número que se usa para compara qué palabra es usada más frecuentemente #
     # Eliminé el random y la sumatoria pues no cumplen ninguna funciona además de aleatorizar la elección de la palabra #
     N = sum(WORDS_INDEX.values())
-    #Se agregó este for para saber si la opción inlcuye una tilde, si lo incluye entones se le resta un valor arbitrario para aumentar el valor en la división #
-    for spanish_word in ['ñ', 'á', 'é', 'í', 'ó', 'ú']:
-        if spanish_word in word:
-            N -= 100
+    
+    # Esta división sobre N me permite determinar que el modelador de lenguaje da el promedio de uso de la palabra #
     return WORDS_INDEX.get(word, 0)/N
 
 
@@ -138,9 +159,7 @@ def spell_check_sentence(sentence):
     # Se cambió sentence.upper() a sentence.lower()
     lower_cased_sentence = sentence.lower()
     # Creo un diccionario con los tipos de puntuación como llave y las ubicaciones de estos como valor #
-    #punctuactions = {".": [], ",": [], "?": [], "¿": []}
     punctuactions = {}
-    ##TODO HACERLO AL REVÉS
     for i in range(0, len(sentence)):
         letter_of_sentence = sentence[i]
         if letter_of_sentence in punct_type:
@@ -220,9 +239,12 @@ def test_spell_check_sentence_2():
     print(spell_check_sentence(sentence))
     assert 'No era una persona de fiar pues era un mentiroso' == spell_check_sentence(sentence) 
 
+    # Este caso de uso fallaba hasta que se incluyó "trabaja" en el diccionario al ponerlo en el archivo words.txt, pues en ninguno de los dos archivos estaba incluido"
     sentence = 'trabaja de dia'
     print(spell_check_sentence(sentence))
     assert 'trabaja de día' == spell_check_sentence(sentence) 
-    
+
+print(spell_check_word('trabaja'))
+
 #test_spell_check_sentence()
 test_spell_check_sentence_2()
