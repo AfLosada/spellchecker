@@ -1,6 +1,8 @@
 import re
 from string import ascii_lowercase
 
+
+
 ## Esta función obtiene todas las palabras del archivo word.txt y del archivo BOOKS.txt y las guarda en un arreglo de strings ##
 ## La función retorna todas las palabras que encuentra en los dos archivos,  ##
 ## Utiliza el parámetro read_mode para designar la manera en que se abrirá el archivo, esto hay que agregarlo como un parámetro nuevo a la función "open" ##
@@ -19,7 +21,8 @@ def fetch_words(read_mode):
 WORDS = fetch_words('r')
 # LETTERS es una variable que se usa en las funciones one_length y two_length para saber qué letras son las que puede intercambiar
 LETTERS = list(ascii_lowercase) + ['ñ', 'á', 'é', 'í', 'ó', 'ú']
-
+# punct_type es una variable que tiene un arreglo de tipos de puntuacion para facilitar la adición o sustracción de un tipo de puntuacion
+punct_type = [',', '.', '¿', '?', '!', '¡', '\'', '"']
 
 ## Es un diccionario que recibe como llave una palabra y almacena la cantidad de veces que esta se repite en los textos ##
 ## Se tuvo que arreglar la lógica dentro de los ifs, pues estaba al revés. Cada vez que se una palabra ya se encuentra en el WORDS_INDEX el valor que contiene aumenta en 1 ##
@@ -115,6 +118,10 @@ def language_model(word):
     # El language model retorna un número que se usa para compara qué palabra es usada más frecuentemente #
     # Eliminé el random y la sumatoria pues no cumplen ninguna funciona además de aleatorizar la elección de la palabra #
     N = sum(WORDS_INDEX.values())
+    #Se agregó este for para saber si la opción inlcuye una tilde, si lo incluye entones se le resta un valor arbitrario para aumentar el valor en la división #
+    for spanish_word in ['ñ', 'á', 'é', 'í', 'ó', 'ú']:
+        if spanish_word in word:
+            N -= 100
     return WORDS_INDEX.get(word, 0)/N
 
 
@@ -130,11 +137,38 @@ def spell_check_word(word):
 def spell_check_sentence(sentence):
     # Se cambió sentence.upper() a sentence.lower()
     lower_cased_sentence = sentence.lower()
+    # Creo un diccionario con los tipos de puntuación como llave y las ubicaciones de estos como valor #
+    #punctuactions = {".": [], ",": [], "?": [], "¿": []}
+    punctuactions = {}
+    ##TODO HACERLO AL REVÉS
+    for i in range(0, len(sentence)):
+        letter_of_sentence = sentence[i]
+        if letter_of_sentence in punct_type:
+            punctuactions[i] = letter_of_sentence
+
+    upperCase = []
+    for i in range(0,len(sentence)):
+        if ("" + sentence[i]).isupper():
+            upperCase.append(i)
+
     # Esta linea le quita la puntuación a la frase para hacer el análisis por palabras #
-    stripped_sentence = list(map(lambda x : x.strip('.,?¿'), lower_cased_sentence.split()))
+    stripped_sentence = list(map(lambda x : x.strip(''.join(punct_type)), lower_cased_sentence.split()))
     # Se cambió de filter a map, puesto que filter no aplica la función a la lista #
     checked = map(spell_check_word, stripped_sentence)
-    return " ".join(checked)
+    checked = " ".join(checked)
+
+    # Agregar la puntuación
+    for position_of_punctuation in punctuactions.keys():
+        front = checked[0: position_of_punctuation]
+        back = checked[position_of_punctuation: len(checked)]
+        checked = front + punctuactions[position_of_punctuation] + back
+
+    # Agregar las mayuculas
+    for i in range(0,len(upperCase)):
+        front = checked[0: upperCase[i] + i]
+        back = checked[upperCase[i] + i+1: len(checked)]
+        checked = front + (""+checked[upperCase[i]]).upper() + back
+    return checked
 
 
 
@@ -143,7 +177,6 @@ def test_spell_check_sentence():
     sentence = 'fabor guardar cilencio para no molestar'
     assert 'favor guardar silencio para no molestar' == spell_check_sentence(sentence) 
 
-    
     sentence = 'un lgar para la hopinion'
     assert 'un lugar para la opinión' == spell_check_sentence(sentence)
 
@@ -177,6 +210,12 @@ def test_spell_check_sentence_2():
     print(spell_check_sentence(sentence))
     assert 'él, no era una persona de fiar pues era un mentiroso' == spell_check_sentence(sentence)
 
+    # Nuevo test para verificar la puntuación al principio de la frase y multiples tipos de puntuación#
+
+    sentence = '¿él, no era una persona de fiar pues era un mentirozo?'
+    print(spell_check_sentence(sentence))
+    assert '¿él, no era una persona de fiar pues era un mentiroso?' == spell_check_sentence(sentence)
+
     sentence = 'No era una persona de fiar pues era un mentirozo'
     print(spell_check_sentence(sentence))
     assert 'No era una persona de fiar pues era un mentiroso' == spell_check_sentence(sentence) 
@@ -185,3 +224,5 @@ def test_spell_check_sentence_2():
     print(spell_check_sentence(sentence))
     assert 'trabaja de día' == spell_check_sentence(sentence) 
     
+#test_spell_check_sentence()
+test_spell_check_sentence_2()
