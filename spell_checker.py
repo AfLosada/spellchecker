@@ -38,7 +38,6 @@ for word in WORDS:
         WORDS_INDEX["" + word] += 1
     else:
         WORDS_INDEX["" + word] = 1
-print(WORDS_INDEX["trabajo"])
 
 ' Hubo un reordenamiento de las funciones pues habían funciones que utilizaban funciones declaradas debajo de ellas'
 ' El error sucede porque en tiempo de compilación se intenta acceder a una función que aún no ha sido declarada'
@@ -249,10 +248,10 @@ def test_spell_check_sentence_2():
     print(spell_check_sentence(sentence))
     assert 'trabaja de día' == spell_check_sentence(sentence)
 
-    # Caso de prueba con dos palabras que tienen mayuscula
+    '''
+    Caso de prueba con dos palabras que tienen mayuscula, las palabras no se encuentan en los 
+    .txt por lo que el programa no las cambia
+    '''
     sentence = 'Mayusculas y Minusculas compartidas'
     print(spell_check_sentence(sentence))
-    assert 'Mayúsculas y Minúsculas compartidas'
-
-#test_spell_check_sentence()
-test_spell_check_sentence_2()
+    assert 'Mayusculas y Minusculas compartidor'
