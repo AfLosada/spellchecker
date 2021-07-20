@@ -92,7 +92,7 @@ def two_lenght_edit(word):
     '''Función no alterada por el ataque'''
     return [e2 for e1 in one_length_edit(word) for e2 in one_length_edit(e1)]
 
-# Esta función recibe una palabra y le cambia las letras 
+# Esta función recibe una palabra y le cambia las letras que puedan ser typos del español a letras hispanas
 def transform_into_spanish(word):
     words = []
     for i in range(0, len(spanish_typo)):
@@ -110,6 +110,7 @@ def transform_into_spanish(word):
 def possible_corrections(word):
     # Si la palabra está correcta se retorna la misma, pero en forma de arreglo pues así la recibe la función superior #
     no_correction_at_all = [word]
+    # Después de crear las palabras con caracteres hispanos se filtran con el diccionario #
     spanish_word = filter_real_words(transform_into_spanish(word))
     
     # En este if se empieza por lo más macro: ¿La palabra es una palabra real? #
@@ -117,7 +118,7 @@ def possible_corrections(word):
     # Este if se agrega para evitar los siguientes pasos en el caso de que la palabra sea la misma #
     if len(filter_real_words([word])):
         return no_correction_at_all
-    # Ahora nos ponemos a buscar si hay una palabra a máximo dos de distancia #
+    # En este segmento se revisa si la palabra puede ser un typo del español #
     elif len(spanish_word):
         return spanish_word
     else:
@@ -164,7 +165,7 @@ def spell_check_sentence(sentence):
         letter_of_sentence = sentence[i]
         if letter_of_sentence in punct_type:
             punctuactions[i] = letter_of_sentence
-
+    # Creo un arreglo/lista que almacena las posiciones de las letras que hay que poner en mayúscula #
     upperCase = []
     for i in range(0,len(sentence)):
         if ("" + sentence[i]).isupper():
@@ -184,8 +185,8 @@ def spell_check_sentence(sentence):
 
     # Agregar las mayuculas
     for i in range(0,len(upperCase)):
-        front = checked[0: upperCase[i] + i]
-        back = checked[upperCase[i] + i+1: len(checked)]
+        front = checked[0: upperCase[i]]
+        back = checked[upperCase[i]+1: len(checked)]
         checked = front + (""+checked[upperCase[i]]).upper() + back
     return checked
 
@@ -239,12 +240,19 @@ def test_spell_check_sentence_2():
     print(spell_check_sentence(sentence))
     assert 'No era una persona de fiar pues era un mentiroso' == spell_check_sentence(sentence) 
 
-    # Este caso de uso fallaba hasta que se incluyó "trabaja" en el diccionario al ponerlo en el archivo words.txt, pues en ninguno de los dos archivos estaba incluido"
+    ''' 
+    Este caso de uso "fallaba" hasta que se incluyó "trabaja" en el 
+    diccionario al ponerlo en el archivo words.txt, 
+    pues en ninguno de los dos archivos estaba incluido
+    '''
     sentence = 'trabaja de dia'
     print(spell_check_sentence(sentence))
-    assert 'trabaja de día' == spell_check_sentence(sentence) 
+    assert 'trabaja de día' == spell_check_sentence(sentence)
 
-print(spell_check_word('trabaja'))
+    # Caso de prueba con dos palabras que tienen mayuscula
+    sentence = 'Mayusculas y Minusculas compartidas'
+    print(spell_check_sentence(sentence))
+    assert 'Mayúsculas y Minúsculas compartidas'
 
 #test_spell_check_sentence()
 test_spell_check_sentence_2()

@@ -112,3 +112,9 @@ functions:
 
 plugins:
   - serverless-offline
+custom:
+  serverlessoffline:
+    httpsProtocol: "dev-certs"
+      httpPort: 4000
+      stageVariables:
+        foo: "bar"
