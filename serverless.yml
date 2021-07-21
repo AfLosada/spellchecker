@@ -5,17 +5,18 @@ provider:
   runtime: python3.8
 
 functions:
-  hello:
+  spellpost:
     # El handler es la función "lambda" que estaría en AWS, en este caso la función tiene la capacidad
     # De cambiar su respuesta si recibe un post o un get
     handler: handler.spell_check
     events:
-      - http:
-          path: spellcheck
-          method: post
-      - http:
-          path: spellcheck
-          method: get
+      - httpApi: "post spellcheck"
+  spellget:
+    handler: handler.get_from_database
+    events:
+      - http: "get spellcheck"
+      
+      
 
 plugins:
   - serverless-offline

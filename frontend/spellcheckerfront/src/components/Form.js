@@ -15,7 +15,8 @@ export class Form extends React.Component {
 
     handleSubmit(event) {
         this.sendRequest();
-        event.preventDefault();
+        //event.preventDefault();
+        alert("Se está arreglando la ortografía de la oración")
     }
 
     sendRequest() {
@@ -35,7 +36,7 @@ export class Form extends React.Component {
             <div>
                 <form onSubmit={this.handleSubmit}>
                     <input type="text" value={this.state.value} onChange={this.handleChange} />
-                    <input type="submit" value="Submit" />
+                    <input type="submit" value="Ingresar"/>
                 </form>
             </div>
         );

@@ -9,7 +9,7 @@
 
 .App-header {
   background-color: #282c34;
-  min-height: 60vh;
+  min-height: 30vh;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -37,6 +37,13 @@ ul.demo {
   margin: 0;
   padding: 0;
   background-color: #282c34;
+  height:100%; 
+  width:100%;
+}
+
+div.dontscroll {
+  overflow:hidden;
+  overflow-y: scroll;
 }
 
 li.demo {
@@ -83,6 +90,7 @@ p.demo {
   border-color: black;
   border-radius: 10px;
   border-width: 2px;
+  width: 300px;
 }
 
 .button:hover {

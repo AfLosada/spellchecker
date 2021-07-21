@@ -37,7 +37,7 @@ export default class Lista extends React.Component {
         const { petitions, responses } = this.state;
         return (
             <div className="containderfluid">
-                <div className="row justify-content-center">
+                <div className="row justify-content-center dontscroll">
                     <div className="col-4">
                         <p className="demo">Peticiones</p>
                         <ul className="demo">
@@ -46,7 +46,6 @@ export default class Lista extends React.Component {
                             })}
                         </ul>
                     </div>
-                    <div className="col-2"></div>
                     <div className="col-4">
                         <p className="demo">Respuestas</p>
                         <ul className="demo">
