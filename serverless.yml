@@ -11,6 +11,9 @@ functions:
       - http:
           path: spellcheck
           method: post
+      - http:
+          path: spellcheck
+          method: get
 
 plugins:
   - serverless-offline

@@ -5,6 +5,7 @@
   "dependencies": {
     "@material-ui/core": "^4.12.2",
     "@material-ui/icons": "^4.11.2",
+    "react-window": "^1.8.6",
     "serverless-dynamodb-local": "^0.2.35",
     "serverless-python-requirements": "^5.1.1"
   },
