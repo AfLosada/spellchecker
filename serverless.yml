@@ -6,6 +6,8 @@ provider:
 
 functions:
   hello:
+    # El handler es la función "lambda" que estaría en AWS, en este caso la función tiene la capacidad
+    # De cambiar su respuesta si recibe un post o un get
     handler: handler.spell_check
     events:
       - http:
@@ -17,7 +19,3 @@ functions:
 
 plugins:
   - serverless-offline
-custom:
-  # Puerto del serverless
-  serverlessoffline:
-    httpPort: 4000
