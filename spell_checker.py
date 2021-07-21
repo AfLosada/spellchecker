@@ -1,12 +1,14 @@
 import re
 from string import ascii_lowercase
 
-
-
-## Esta función obtiene todas las palabras del archivo word.txt y del archivo BOOKS.txt y las guarda en un arreglo de strings ##
-## La función retorna todas las palabras que encuentra en los dos archivos,  ##
-## Utiliza el parámetro read_mode para designar la manera en que se abrirá el archivo, esto hay que agregarlo como un parámetro nuevo a la función "open" ##
-## Se le agregó encoding = 'utf8', como una variable y como parámetro de la función "open" para que funcionara la lectura del archivo sin problemas (pues el archivo tiene que ser leído con utf8 para que incluya tildes y caracteres del habla hispana) ##
+# Esta función obtiene todas las palabras del archivo word.txt y del archivo BOOKS.txt y las 
+# guarda en un arreglo de strings 
+# La función retorna todas las palabras que encuentra en los dos archivos,  
+# Utiliza el parámetro read_mode para designar la manera en que se abrirá el archivo, esto hay 
+# que agregarlo como un parámetro nuevo a la función "open" ##
+# Se le agregó encoding = 'utf8', como una variable y como parámetro de la función "open" para que 
+# funcionara la lectura del archivo sin problemas (pues el archivo tiene que ser leído 
+# con utf8 para que incluya tildes y caracteres del habla hispana) 
 
 def fetch_words(read_mode):
     '''Función no alterada por el ataque'''
@@ -23,15 +25,19 @@ spanish_typo = ['n','a','e','i','o','u']
 
 # WORDS es una variable que almacena todas las palabras, aunque se repitan, de los archivos de texto
 WORDS = fetch_words('r')
-# LETTERS es una variable que se usa en las funciones one_length y two_length para saber qué letras son las que puede intercambiar
+# LETTERS es una variable que se usa en las funciones one_length y two_length para saber 
+# qué letras son las que puede intercambiar
 LETTERS = list(ascii_lowercase) + spanish_letters
-# punct_type es una variable que tiene un arreglo de tipos de puntuacion para facilitar la adición o sustracción de un tipo de puntuacion
+# punct_type es una variable que tiene un arreglo de tipos de puntuacion para facilitar la 
+# adición o sustracción de un tipo de puntuacion
 punct_type = [',', '.', '¿', '?', '!', '¡', '\'', '"']
 
 
 
-## Es un diccionario que recibe como llave una palabra y almacena la cantidad de veces que esta se repite en los textos ##
-## Se tuvo que arreglar la lógica dentro de los ifs, pues estaba al revés. Cada vez que se una palabra ya se encuentra en el WORDS_INDEX el valor que contiene aumenta en 1 ##
+''' 
+Es un diccionario que recibe como llave una palabra y almacena la cantidad de veces que esta se repite en los textos ##
+Se tuvo que arreglar la lógica dentro de los ifs, pues estaba al revés. Cada vez que se una palabra ya se encuentra en el WORDS_INDEX el valor que contiene aumenta en 1 ##
+'''
 WORDS_INDEX = {}
 for word in WORDS:
     if word in WORDS_INDEX:
@@ -39,16 +45,23 @@ for word in WORDS:
     else:
         WORDS_INDEX["" + word] = 1
 
-' Hubo un reordenamiento de las funciones pues habían funciones que utilizaban funciones declaradas debajo de ellas'
-' El error sucede porque en tiempo de compilación se intenta acceder a una función que aún no ha sido declarada'
-
-# Esta función se llama después de haber corregido el spelling de todas las palabras, pues hace una comparación 1:1 #
+''' 
+Hubo un reordenamiento de las funciones pues habían funciones que utilizaban funciones declaradas 
+debajo de ellas. El error sucede porque en tiempo de compilación se intenta acceder a una 
+función que aún no ha sido declarada'
+'''
+'''
+# Esta función se llama después de haber corregido el spelling de todas las palabras, pues hace 
+una comparación 1:1 #
 # Esta función recibe una lista de palabras y retorna aquellas que estén en el índice #
 # Retorna un set de palabras, aquellas que hagan parte del índice de palabras #
+'''
+
 def filter_real_words(words):
     return set(word for word in words if word in WORDS_INDEX)
 
-# Esta función recibe una palabra y encuetra todas las palabras que están a 1 de distancia de la original #
+# Esta función recibe una palabra y encuetra todas las palabras que están a 1 de 
+# distancia de la original 
 # El vocabulario que se usa está guardado en la variable LETTERS #
 def one_length_edit(word):
     '''Función no alterada por el ataque'''
@@ -91,7 +104,10 @@ def two_lenght_edit(word):
     '''Función no alterada por el ataque'''
     return [e2 for e1 in one_length_edit(word) for e2 in one_length_edit(e1)]
 
-# Esta función recibe una palabra y le cambia las letras que puedan ser typos del español a letras hispanas
+'''
+# Esta función recibe una palabra y le cambia las letras que puedan ser typos del español a 
+# letras hispanas
+'''
 def transform_into_spanish(word):
     words = []
     for i in range(0, len(spanish_typo)):
@@ -107,7 +123,10 @@ def transform_into_spanish(word):
 
 
 def possible_corrections(word):
-    # Si la palabra está correcta se retorna la misma, pero en forma de arreglo pues así la recibe la función superior #
+    '''
+    # Si la palabra está correcta se retorna la misma, pero en forma de arreglo pues así la recibe 
+    # la función superior #
+    '''
     no_correction_at_all = [word]
     # Después de crear las palabras con caracteres hispanos se filtran con el diccionario #
     spanish_word = filter_real_words(transform_into_spanish(word))
@@ -136,21 +155,31 @@ def possible_corrections(word):
             return no_correction_at_all
 
 
-# Es lo que permite determinar cual de las opciones es la más utilizada, pues se usa para comparar qué opción tiene un promedio de uso mayor (cual es más popular) #
+'''
+# Es lo que permite determinar cual de las opciones es la más utilizada, pues se usa para comparar 
+# qué opción tiene un promedio de uso mayor (cual es más popular) #
+'''
 def language_model(word):
-    # El language model retorna un número que se usa para compara qué palabra es usada más frecuentemente #
-    # Eliminé el random y la sumatoria pues no cumplen ninguna funciona además de aleatorizar la elección de la palabra #
+    '''
+    El language model retorna un número que se usa para compara qué palabra es usada más 
+    frecuentemente 
+    Eliminé el random y la sumatoria pues no cumplen ninguna funciona además de aleatorizar 
+    la elección de la palabra 
+    '''
     N = sum(WORDS_INDEX.values())
     
-    # Esta división sobre N me permite determinar que el modelador de lenguaje da el promedio de uso de la palabra #
+    # Esta división sobre N me permite determinar que el modelador de lenguaje da el
+    # promedio de uso de la palabra 
     return WORDS_INDEX.get(word, 0)/N
 
 
 
 def spell_check_word(word):
     # Esta función retorna la palabra que más veces se usa al aplicarle language model #
-    # Se cambió de min a max por lo que el interés es saber cual palabra se acerca más al modelo, además, el modelo usa la misma función y al hacer la prueba se acerca más a la realidad #
-    
+    '''
+    Se cambió de min a max por lo que el interés es saber cual palabra se acerca más al modelo, 
+    además, el modelo usa la misma función y al hacer la prueba se acerca más a la realidad #
+    '''
     return max(possible_corrections(word), key=language_model)
 
 
@@ -178,18 +207,21 @@ def spell_check_sentence(sentence):
 
     # Agregar la puntuación
     for position_of_punctuation in punctuactions.keys():
-        front = checked[0: position_of_punctuation]
-        back = checked[position_of_punctuation: len(checked)]
-        checked = front + punctuactions[position_of_punctuation] + back
+        beginning_of_string = checked[0: position_of_punctuation]
+        end_of_string = checked[position_of_punctuation: len(checked)]
+        checked = beginning_of_string + punctuactions[position_of_punctuation] + end_of_string
 
     # Agregar las mayuculas
     for i in range(0,len(upperCase)):
-        front = checked[0: upperCase[i]]
-        back = checked[upperCase[i]+1: len(checked)]
-        checked = front + (""+checked[upperCase[i]]).upper() + back
+        beginning_of_string = checked[0: upperCase[i]]
+        end_of_string = checked[upperCase[i]+1: len(checked)]
+        checked = beginning_of_string + (""+checked[upperCase[i]]).upper() + end_of_string
     return checked
 
-
+''' 
+    Después de hacer los arreglos que pide el punto 2, al mejorar el código para que incluya
+    mayúsculas, puntuación y le de prioridad a las tildes dejó de funcionar el test 1
+'''
 
 def test_spell_check_sentence():
 
@@ -255,3 +287,5 @@ def test_spell_check_sentence_2():
     sentence = 'Mayusculas y Minusculas compartidas'
     print(spell_check_sentence(sentence))
     assert 'Mayusculas y Minusculas compartidor'
+
+test_spell_check_sentence_2
