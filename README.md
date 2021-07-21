@@ -34,3 +34,7 @@ To test that the endpoint is working correctly use cURL:
 $ curl http://localhost:3000/dev/spellcheck> -X POST -d '{ "text": "un lgar para la hopinion"}'
 { "text" : "un lugar para la opinión" }
 ```
+
+FRONT END
+
+1. The instructions for running the front-end are in the README.md in frontend/spellchecker
