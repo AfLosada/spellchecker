@@ -37,4 +37,4 @@ $ curl http://localhost:3000/dev/spellcheck> -X POST -d '{ "text": "un lgar para
 
 FRONT END
 
-1. The instructions for running the front-end are in the README.md in frontend/spellchecker
+1. The instructions for running the front-end are in the README.md in frontend/spellcheckerfront
